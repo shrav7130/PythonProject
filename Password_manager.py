@@ -6,8 +6,16 @@ from tkinter import ttk
 class PasswordManager:
     def __init__(self, master, master_password):
         self.master = master
+        # Increase font size globally
+        self.master.option_add("*Font", "Helvetica 14")
+        self.master.option_add("*Entry.Font", "Helvetica 14")
+        self.master.option_add("*Button.Font", "Helvetica 14")
+        self.master.option_add("*Label.Font", "Helvetica 14")
+        self.master.option_add("*Treeview.Heading.Font", "Helvetica 14 bold")
+        self.master.option_add("*Treeview.Font", "Helvetica 13")
+
         self.master.title("Password Manager")
-        self.master.geometry("400x300")
+        self.master.geometry("800x600")
         self.master_password = master_password
         self.passwords = {}
         
@@ -84,6 +92,8 @@ class PasswordManager:
         self.tree.heading("website", text="Website")
         self.tree.heading("username", text="Username")
         self.tree.heading("password", text="Password")
+        style = ttk.Style()
+        style.configure("Treeview.Heading", font=("Helvetica", 14, "bold"))
 
         self.tree.tag_configure("large_font", font=("Helvetica", 12))   # it will Set larger font size for the Treeview contents
 
@@ -92,7 +102,8 @@ class PasswordManager:
             password = password_info["password"]
             self.tree.insert("", tk.END, values=(website, username, password), tags="large_font")
 
-        self.tree.pack()
+        self.tree.pack(expand=True, fill="both", padx=20, pady=20)
+
 
     def on_pass_change(self, event):
         password = self.password_entry.get()
@@ -158,7 +169,6 @@ class PasswordManager:
                 self.passwords = json.load(file)
         except FileNotFoundError:
             self.passwords = {}
-
 
 root = tk.Tk()
 root.geometry("400x300")

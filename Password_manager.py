@@ -6,14 +6,14 @@ from tkinter import ttk
 class PasswordManager:
     def __init__(self, master, master_password):
         self.master = master
-        # Increase font size globally
+        
         self.master.option_add("*Font", "Helvetica 14")
         self.master.option_add("*Entry.Font", "Helvetica 14")
         self.master.option_add("*Button.Font", "Helvetica 14")
         self.master.option_add("*Label.Font", "Helvetica 14")
         self.master.option_add("*Treeview.Heading.Font", "Helvetica 14 bold")
         self.master.option_add("*Treeview.Font", "Helvetica 13")
-
+    
         self.master.title("Password Manager")
         self.master.geometry("800x600")
         self.master_password = master_password
@@ -103,7 +103,51 @@ class PasswordManager:
             self.tree.insert("", tk.END, values=(website, username, password), tags="large_font")
 
         self.tree.pack(expand=True, fill="both", padx=20, pady=20)
+        
+        
+        # Right-click menu
+        self.menu = tk.Menu(self.master, tearoff=0)
+        self.menu.add_command(label="Copy Username", command=lambda: self.copy_item(0))
+        self.menu.add_command(label="Copy Password", command=lambda: self.copy_item(1))
 
+        # Bind right-click to show the menu
+        def on_right_click(event):
+            row_id = self.tree.identify_row(event.y)
+            if row_id:
+                self.tree.selection_set(row_id)
+                self.menu.post(event.x_root, event.y_root)
+
+        self.tree.bind("<Button-3>", on_right_click)
+
+        # Add a Back button
+        self.back_button = tk.Button(self.master, text="Back", command=self.show_main_menu, bg=self.bg_color)
+        self.back_button.pack(pady=10)
+
+    
+    def copy_item(self, col_index):
+        selected = self.tree.selection()
+        if selected:
+            item = self.tree.item(selected[0])
+            value = item["values"][col_index+1]
+            self.master.clipboard_clear()
+            self.master.clipboard_append(value)
+            self.master.update()
+
+    #After clicking back button this menu will appears    
+    def show_main_menu(self):
+        self.clear_widgets()
+
+        self.label_action = tk.Label(self.master, text="Choose an action:", bg=self.bg_color)
+        self.label_action.pack()
+
+        self.add_button = tk.Button(self.master, text="Add Password", command=self.show_add_pass, bg=self.bg_color)
+        self.add_button.pack()
+
+        self.view_button = tk.Button(self.master, text="View Passwords", command=self.view_pass, bg=self.bg_color)
+        self.view_button.pack()
+
+        self.quit_button = tk.Button(self.master, text="Quit", command=self.master.destroy, bg=self.bg_color)
+        self.quit_button.pack()
 
     def on_pass_change(self, event):
         password = self.password_entry.get()
@@ -154,6 +198,9 @@ class PasswordManager:
 
         else:
             messagebox.showwarning("Error", "Please enter website, username, and password.")
+
+    
+
 
     def clear_widgets(self):
         for widget in self.master.winfo_children():
